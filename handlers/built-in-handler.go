@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -30,9 +29,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get form values
-	name := r.Form.Get("Name")
-	email := r.Form.Get("Email")
-	ageStr := r.Form.Get("Age")
+	name := r.Form.Get("name")
+	email := r.Form.Get("email")
+	ageStr := r.Form.Get("age")
 
 	// Convert age to unit
 	age, err := strconv.ParseUint(ageStr, 10, 32)
@@ -49,11 +48,10 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	db.Find(&newUser)
+	db.Create(&newUser)
 
 	// Return a success response
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "User created successfully")
 }
 
 // READ
@@ -81,11 +79,8 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Write JSON response to the client
-	w.Write(usersJSON)
-
-	// Add a success response
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Operation successful")
+	w.Write(usersJSON)
 }
 
 // Add other handlers if needed
