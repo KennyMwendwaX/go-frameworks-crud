@@ -1,16 +1,12 @@
 package routers
 
 import (
-	"fmt"
 	"net/http"
-	"time"
+
+	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
 )
 
-func greet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World! %s", time.Now())
-}
-
 func SetUpBuiltInRouter() {
-	http.HandleFunc("/", greet)
-	// http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/", handlers.Greet)
+	// Add other routes if needed
 }
