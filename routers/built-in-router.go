@@ -6,7 +6,8 @@ import (
 	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
 )
 
-func SetUpBuiltInRouter() {
-	http.HandleFunc("/", handlers.Greet)
+func SetUpBuiltInRouter() *http.ServeMux {
+	http.HandleFunc("/users", handlers.CreateUser)
+	http.HandleFunc("/users", handlers.GetUsers)
 	// Add other routes if needed
 }
