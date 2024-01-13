@@ -20,10 +20,5 @@ func ConnectDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// if err := db.Ping(); err != nil {
-	// 	log.Println("Failed to ping database:", err)
-	// 	return nil, err
-	// }
-
 	return db, nil
 }
