@@ -7,7 +7,11 @@ import (
 )
 
 func SetUpBuiltInRouter() *http.ServeMux {
-	http.HandleFunc("/users", handlers.CreateUser)
-	http.HandleFunc("/users", handlers.GetUsers)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/users/create", handlers.CreateUser)
+	mux.HandleFunc("/users", handlers.GetUsers)
 	// Add other routes if needed
+
+	return mux
 }
