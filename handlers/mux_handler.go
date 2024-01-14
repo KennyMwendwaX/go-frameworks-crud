@@ -30,9 +30,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get form values
-	name := r.Form.Get("name")
-	email := r.Form.Get("email")
-	ageStr := r.Form.Get("age")
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	ageStr := r.FormValue("age")
 
 	// Convert age to unit
 	age, err := strconv.ParseUint(ageStr, 10, 32)
