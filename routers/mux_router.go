@@ -1,19 +1,18 @@
 package routers
 
 import (
-	"net/http"
-
+	"github.com/gorilla/mux"
 	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
 )
 
-func SetUpBuiltInRouter() *http.ServeMux {
-	mux := http.NewServeMux()
+func SetUpBuiltInRouter() *mux.Router {
+	r := mux.NewRouter()
 
-	mux.HandleFunc("/users/create", handlers.CreateUser)
-	mux.HandleFunc("/users", handlers.GetUsers)
-	mux.HandleFunc("/users/:id", handlers.GetUser)
+	r.HandleFunc("/users/create", handlers.CreateUser)
+	r.HandleFunc("/users", handlers.GetUsers)
+	r.HandleFunc("/users/{id:[0-9]+}", handlers.GetUser)
 
 	// Add other routes if needed
 
-	return mux
+	return r
 }
