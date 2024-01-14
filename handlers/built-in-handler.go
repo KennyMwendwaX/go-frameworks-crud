@@ -10,7 +10,7 @@ import (
 	"github.com/kenny-mwendwa/go-restapi-crud/models"
 )
 
-// CREATE
+// CREATE USER
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 
@@ -48,13 +48,18 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	db.Create(&newUser)
+	result := db.Create(&newUser)
+	if result.Error != nil {
+		log.Println("Error creating user:", result.Error)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	// Return a success response
 	w.WriteHeader(http.StatusCreated)
 }
 
-// READ
+// GET ALL USERS
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -65,7 +70,13 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	var users []models.User
 
-	db.Find(&users)
+	// Query the database for all users
+	result := db.Find(&users)
+	if result.Error != nil {
+		log.Println("Error fetching users from the database:", result.Error)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	usersJSON, err := json.Marshal(users)
 
@@ -83,4 +94,44 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Write(usersJSON)
 }
 
-// Add other handlers if needed
+// GET ONE USER
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Extract user ID from request UrL parameters
+	userIDStr := r.URL.Query().Get("id")
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+
+	// Query the DB for the user with the specified ID
+	result := db.First(&user, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	userJSON, err := json.Marshal(user)
+
+	if err != nil {
+		log.Println("Error marshaling user to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(userJSON)
+}
