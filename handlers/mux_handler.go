@@ -171,7 +171,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	result := db.First(&existingUser, userID)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
-		http.Error(w, "User not found", http.StatusBadRequest)
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
@@ -196,4 +196,41 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	db.Save(&existingUser)
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Extract user ID from request URL parameters
+	vars := mux.Vars(r)
+	userIDStr, ok := vars["id"]
+	if !ok {
+		log.Println("User ID not provided in the url")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userID to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	var existingUser models.User
+	result := db.First(&existingUser, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	db.Delete(&existingUser)
+
+	w.WriteHeader(http.StatusNoContent)
 }
