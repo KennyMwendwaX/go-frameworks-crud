@@ -3,6 +3,7 @@ module github.com/kenny-mwendwa/go-restapi-crud
 go 1.21.6
 
 require (
+	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgx/v5 v5.5.1 // indirect

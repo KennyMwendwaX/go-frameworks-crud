@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/kenny-mwendwa/go-restapi-crud/db"
 	"github.com/kenny-mwendwa/go-restapi-crud/models"
@@ -104,8 +106,8 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract user ID from request UrL parameters
-	userIDStr := r.URL.Query().Get("id")
-
+	userIDStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	fmt.Println(userIDStr)
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit:", err)

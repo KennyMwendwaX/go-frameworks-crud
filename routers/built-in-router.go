@@ -11,6 +11,8 @@ func SetUpBuiltInRouter() *http.ServeMux {
 
 	mux.HandleFunc("/users/create", handlers.CreateUser)
 	mux.HandleFunc("/users", handlers.GetUsers)
+	mux.HandleFunc("/users/:id", handlers.GetUser)
+
 	// Add other routes if needed
 
 	return mux
