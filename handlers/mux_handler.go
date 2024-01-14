@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/kenny-mwendwa/go-restapi-crud/db"
 	"github.com/kenny-mwendwa/go-restapi-crud/models"
 )
@@ -105,12 +104,18 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract user ID from request UrL parameters
-	userIDStr := strings.TrimPrefix(r.URL.Path, "/users/")
-	fmt.Println(userIDStr)
+	// Extract user ID from request URL parameters
+	vars := mux.Vars(r)
+	userIDStr, ok := vars["id"]
+	if !ok {
+		log.Println("User ID not provided in the URL")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit:", err)
+		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -136,4 +141,59 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(userJSON)
+}
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Extract user ID from request URL parameters
+	vars := mux.Vars(r)
+	userIDStr, ok := vars["id"]
+	if !ok {
+		log.Println("User ID not provided in the url")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	var existingUser models.User
+	result := db.First(&existingUser, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		http.Error(w, "User not found", http.StatusBadRequest)
+		return
+	}
+
+	// Get form values
+	name := r.Form.Get("name")
+	email := r.Form.Get("email")
+	ageStr := r.Form.Get("age")
+
+	age, err := strconv.ParseUint(ageStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting age to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Update user fields
+	existingUser.Name = name
+	existingUser.Email = email
+	existingUser.Age = uint(age)
+
+	// Save the updated user to the database
+	db.Save(&existingUser)
+
+	w.WriteHeader(http.StatusOK)
 }
