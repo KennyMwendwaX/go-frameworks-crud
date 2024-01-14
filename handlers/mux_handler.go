@@ -143,6 +143,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Write(userJSON)
 }
 
+// UPDATE USER
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -198,6 +199,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// DELETE USER
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
