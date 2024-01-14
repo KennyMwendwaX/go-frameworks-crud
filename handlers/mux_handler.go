@@ -177,21 +177,28 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get form values
-	name := r.Form.Get("name")
-	email := r.Form.Get("email")
-	ageStr := r.Form.Get("age")
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	ageStr := r.FormValue("age")
 
-	age, err := strconv.ParseUint(ageStr, 10, 32)
-	if err != nil {
-		log.Println("Error converting age to unit32:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
+	// Update user fields if provided
+	if name != "" {
+		existingUser.Name = name
 	}
 
-	// Update user fields
-	existingUser.Name = name
-	existingUser.Email = email
-	existingUser.Age = uint(age)
+	if email != "" {
+		existingUser.Email = email
+	}
+
+	if ageStr != "" {
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			log.Println("Error converting age to unit32:", err)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+		existingUser.Age = uint(age)
+	}
 
 	// Save the updated user to the database
 	db.Save(&existingUser)
