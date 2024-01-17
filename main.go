@@ -17,9 +17,15 @@ func main() {
 
 	// Migrate the schema
 	// db.AutoMigrate(&models.User{})
-	builtInRouter := routers.SetUpBuiltInRouter()
+	standardRouter := routers.StandardRouter()
+	muxRouter := routers.MuxRouter()
 	go func() {
-		log.Fatal(http.ListenAndServe(":8080", builtInRouter))
+		log.Fatal(http.ListenAndServe(":8000", standardRouter))
+	}()
+	fmt.Println("Server running at http://localhost:8001")
+
+	go func() {
+		log.Fatal(http.ListenAndServe(":8080", muxRouter))
 	}()
 
 	fmt.Println("Server running at http://localhost:8080")
