@@ -94,3 +94,45 @@ func HttpGetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(usersJSON)
 }
+
+// GET ONE USER
+func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Extract user ID from request URL parameters
+	userIDStr := ps.ByName("id")
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+
+	// Query the DB for the user with the specified ID
+	result := db.First(&user, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	userJSON, err := json.Marshal(user)
+
+	if err != nil {
+		log.Println("Error marshaling user to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(userJSON)
+}
