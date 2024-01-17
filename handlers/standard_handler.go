@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -227,6 +228,7 @@ func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
 	userIDStr := strings.TrimSuffix(path[len("/users/delete/"):], "/")
+	fmt.Println(userIDStr)
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)

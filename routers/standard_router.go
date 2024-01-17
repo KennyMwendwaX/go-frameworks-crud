@@ -7,13 +7,13 @@ import (
 )
 
 func StandardRouter() http.Handler {
-	mux := http.NewServeMux()
+	r := http.NewServeMux()
 
-	mux.HandleFunc("/users", handlers.StandardGetUsers)
-	mux.HandleFunc("/users/create", handlers.StandardCreateUser)
-	mux.HandleFunc("/users/", handlers.StandardGetUser)
-	mux.HandleFunc("/users/update/", handlers.StandardUpdateUser)
+	r.HandleFunc("/users", handlers.StandardGetUsers)
+	r.HandleFunc("/users/create", handlers.StandardCreateUser)
+	r.HandleFunc("/users/", handlers.StandardGetUser)
+	r.HandleFunc("/users/update/", handlers.StandardUpdateUser)
+	r.HandleFunc("/users/delete/", handlers.StandardDeleteUser)
 
-	return mux
-
+	return r
 }
