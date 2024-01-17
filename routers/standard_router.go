@@ -6,7 +6,7 @@ import (
 	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
 )
 
-func StandardRouter() http.Handler {
+func StandardRouter() *http.ServeMux {
 	r := http.NewServeMux()
 
 	r.HandleFunc("/users", handlers.StandardGetUsers)

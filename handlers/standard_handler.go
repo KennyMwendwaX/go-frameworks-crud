@@ -113,7 +113,7 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
+	// Trim the trailing slash and extract user ID from the path
 	userIDStr := strings.TrimSuffix(path[len("/users/"):], "/")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
