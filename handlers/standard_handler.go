@@ -155,14 +155,14 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Extract user ID from request URL manually
 	path := r.URL.Path
-	if path == "/users/" {
+	if path == "/users/update/" {
 		log.Println("User ID not provided in the URL")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
-	userIDStr := strings.TrimSuffix(path[len("/users/"):], "/")
+	userIDStr := strings.TrimSuffix(path[len("/users/update/"):], "/")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)

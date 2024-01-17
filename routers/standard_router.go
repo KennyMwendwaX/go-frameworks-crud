@@ -12,6 +12,7 @@ func StandardRouter() http.Handler {
 	mux.HandleFunc("/users", handlers.StandardGetUsers)
 	mux.HandleFunc("/users/create", handlers.StandardCreateUser)
 	mux.HandleFunc("/users/", handlers.StandardGetUser)
+	mux.HandleFunc("/users/update/", handlers.StandardUpdateUser)
 
 	return mux
 
