@@ -10,6 +10,7 @@ func StandardRouter() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/users", handlers.GetUsers)
+	mux.HandleFunc("/users/create", handlers.CreateUser)
 
 	return mux
 

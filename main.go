@@ -22,13 +22,13 @@ func main() {
 	go func() {
 		log.Fatal(http.ListenAndServe(":8000", standardRouter))
 	}()
-	fmt.Println("Server running at http://localhost:8001")
+	fmt.Println("Server running at http://localhost:8000")
 
 	go func() {
-		log.Fatal(http.ListenAndServe(":8080", muxRouter))
+		log.Fatal(http.ListenAndServe(":8002", muxRouter))
 	}()
 
-	fmt.Println("Server running at http://localhost:8080")
+	fmt.Println("Server running at http://localhost:8002")
 
 	select {}
 }
