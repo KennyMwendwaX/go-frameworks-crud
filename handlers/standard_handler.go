@@ -207,3 +207,42 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+// DELETE USER
+func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Extract user ID from request URL manually
+	path := r.URL.Path
+	if path == "/users/delete/" {
+		log.Println("User ID not provided in the URL")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
+	userIDStr := strings.TrimSuffix(path[len("/users/delete/"):], "/")
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	var existingUser models.User
+	result := db.First(&existingUser, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	db.Delete(&existingUser)
+
+	w.WriteHeader(http.StatusNoContent)
+}
