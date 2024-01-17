@@ -19,14 +19,14 @@ func init() {
 	}
 
 	// Set configuration variables
-	host := os.Getenv("HOST")
-	portStr := os.Getenv("PORT")
+	host := os.Getenv("DB_HOST")
+	portStr := os.Getenv("DB_PORT")
 	port, err := strconv.ParseInt(portStr, 10, 64)
 	if err != nil {
 		log.Fatal("Error converting PORT to integer:", err)
 	}
-	user := os.Getenv("USER")
-	password := os.Getenv("PASSWORD")
-	name := os.Getenv("NAME")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	name := os.Getenv("DB_NAME")
 	DB_URI = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", host, user, password, name, port)
 }

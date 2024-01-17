@@ -9,7 +9,6 @@ import (
 )
 
 func ConnectDB() (*gorm.DB, error) {
-
 	db, err := gorm.Open(postgres.Open(config.DB_URI), &gorm.Config{})
 
 	if err != nil {
