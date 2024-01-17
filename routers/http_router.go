@@ -8,5 +8,6 @@ import (
 func HttpRouter() *httprouter.Router {
 	r := httprouter.New()
 	r.GET("/users", handlers.HttpGetUsers)
+	r.POST("/users", handlers.HttpCreateUser)
 	return r
 }
