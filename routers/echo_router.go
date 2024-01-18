@@ -12,6 +12,7 @@ func EchoRouter() *echo.Echo {
 	e.POST("/users", handlers.EchoCreateUser)
 	e.GET("/users/:id", handlers.EchoGetUser)
 	e.PUT("/users/:id", handlers.EchoUpdateUser)
+	e.DELETE("/users/:id", handlers.EchoDeleteUser)
 
 	return e
 }
