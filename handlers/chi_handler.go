@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi"
 	"github.com/kenny-mwendwa/go-restapi-crud/db"
 	"github.com/kenny-mwendwa/go-restapi-crud/models"
 )
@@ -92,4 +93,46 @@ func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
 	// Write JSON response to the client
 	w.WriteHeader(http.StatusOK)
 	w.Write(usersJSON)
+}
+
+// GET ONE USER
+func ChiGetUser(w http.ResponseWriter, r *http.Request) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Extract user ID from request URL parameters
+	userIDStr := chi.URLParam(r, "id")
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+
+	// Query the DB for the user with the specified ID
+	result := db.First(&user, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	userJSON, err := json.Marshal(user)
+
+	if err != nil {
+		log.Println("Error marshaling user to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(userJSON)
 }
