@@ -156,3 +156,33 @@ func EchoUpdateUser(c echo.Context) error {
 
 	return c.String(http.StatusCreated, "User updated")
 }
+
+// DELETE USER
+func EchoDeleteUser(c echo.Context) error {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		return c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	// Extract user ID from request URL parameters
+	userIDstr := c.Param("id")
+
+	userID, err := strconv.ParseUint(userIDstr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit32:", err)
+		return c.String(http.StatusBadRequest, "Bad Request")
+	}
+
+	var existingUser models.User
+
+	result := db.First(&existingUser, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		return c.String(http.StatusNotFound, "User not found")
+	}
+
+	db.Delete(&existingUser)
+
+	return c.String(http.StatusNoContent, "User deleted")
+}
