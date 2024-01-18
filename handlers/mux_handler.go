@@ -175,6 +175,7 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var existingUser models.User
+
 	result := db.First(&existingUser, userID)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)

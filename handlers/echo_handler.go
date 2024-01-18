@@ -103,3 +103,56 @@ func EchoGetUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, user)
 }
+
+// UPDATE USER
+func EchoUpdateUser(c echo.Context) error {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		return c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	// Extract user ID from request URL parameters
+	userIDstr := c.Param("id")
+
+	userID, err := strconv.ParseUint(userIDstr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userId to unit32:", err)
+		return c.String(http.StatusBadRequest, "Bad Request")
+	}
+
+	var existingUser models.User
+
+	result := db.First(&existingUser, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		return c.String(http.StatusNotFound, "User not found")
+	}
+
+	name := c.FormValue("name")
+	email := c.FormValue("email")
+	ageStr := c.FormValue("age")
+
+	// Update user fields if provided
+	if name != "" {
+		existingUser.Name = name
+	}
+
+	if email != "" {
+		existingUser.Email = email
+	}
+
+	if ageStr != "" {
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			log.Println("Error converting age to unit32:", err)
+			return c.String(http.StatusBadRequest, "Bad Request")
+		}
+		existingUser.Age = uint(age)
+	}
+
+	// Save the updated user to the database
+	db.Save(&existingUser)
+
+	return c.String(http.StatusCreated, "User updated")
+}
