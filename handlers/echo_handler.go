@@ -22,6 +22,12 @@ func EchoCreateUser(c echo.Context) error {
 	email := c.FormValue("email")
 	ageStr := c.FormValue("age")
 
+	// Guard clauses to check if values are empty
+	if name == "" || email == "" || ageStr == "" {
+		log.Println("Empty values detected")
+		return c.String(http.StatusBadRequest, "Bad Request: Empty values")
+	}
+
 	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to unit:", err)

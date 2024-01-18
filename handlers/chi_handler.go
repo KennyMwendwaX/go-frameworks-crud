@@ -34,6 +34,13 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	ageStr := r.FormValue("age")
 
+	// Guard clauses to check if values are empty
+	if name == "" || email == "" || ageStr == "" {
+		log.Println("Empty values detected")
+		http.Error(w, "Bad Request: Empty values", http.StatusBadRequest)
+		return
+	}
+
 	// Convert age to unit
 	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
