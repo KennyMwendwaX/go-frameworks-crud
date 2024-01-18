@@ -9,6 +9,7 @@ func EchoRouter() *echo.Echo {
 	e := echo.New()
 
 	e.GET("/users", handlers.EchoGetUsers)
+	e.POST("/users", handlers.EchoCreateUser)
 
 	return e
 }
