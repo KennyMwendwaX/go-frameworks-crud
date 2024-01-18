@@ -20,6 +20,7 @@ func main() {
 	standardRouter := routers.StandardRouter()
 	httpRouter := routers.HttpRouter()
 	muxRouter := routers.MuxRouter()
+	chiRouter := routers.ChiRouter()
 
 	go func() {
 		log.Fatal(http.ListenAndServe(":8000", standardRouter))
@@ -35,6 +36,11 @@ func main() {
 		log.Fatal(http.ListenAndServe(":8002", muxRouter))
 	}()
 	fmt.Println("Mux router running at http://localhost:8002")
+
+	go func() {
+		log.Fatal(http.ListenAndServe(":8003", chiRouter))
+	}()
+	fmt.Println("Chi router running at http://localhost:8003")
 
 	select {}
 }
