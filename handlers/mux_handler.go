@@ -14,7 +14,6 @@ import (
 // CREATE USER
 func MuxCreateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
-
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
