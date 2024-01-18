@@ -10,7 +10,8 @@ func ChiRouter() *chi.Mux {
 
 	r.Get("/users", handlers.ChiGetUsers)
 	r.Post("/users", handlers.ChiCreateUser)
-	r.Post("/users/{id}", handlers.ChiGetUser)
+	r.Get("/users/{id}", handlers.ChiGetUser)
+	r.Put("/users/{id}", handlers.ChiUpdateUser)
 
 	return r
 }
