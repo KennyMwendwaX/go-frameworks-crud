@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/kenny-mwendwa/go-restapi-crud/db"
 	"github.com/kenny-mwendwa/go-restapi-crud/models"
 )
