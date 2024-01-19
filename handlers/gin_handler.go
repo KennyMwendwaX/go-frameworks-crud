@@ -145,12 +145,6 @@ func GinUpdateUser(c *gin.Context) {
 	email := c.PostForm("email")
 	ageStr := c.PostForm("age")
 
-	// Validate input
-	if name == "" || email == "" || ageStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Empty values"})
-		return
-	}
-
 	// Convert age to uint
 	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
