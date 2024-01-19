@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/kenny-mwendwa/go-restapi-crud/routers"
 )
 
@@ -22,6 +23,10 @@ func main() {
 	muxRouter := routers.MuxRouter()
 	chiRouter := routers.ChiRouter()
 	e := routers.EchoRouter()
+
+	gin.SetMode(gin.ReleaseMode)
+
+	r := routers.GinRouter()
 
 	// Standard lib routine
 	go func() {
@@ -54,6 +59,12 @@ func main() {
 		}
 	}()
 	fmt.Println("Echo running at http://localhost:8004")
+
+	// Gin routine
+	go func() {
+		r.Run(":8005")
+	}()
+	fmt.Println("Gin running at http://localhost:8005")
 
 	select {}
 }
