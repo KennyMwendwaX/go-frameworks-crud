@@ -23,10 +23,9 @@ func main() {
 	muxRouter := routers.MuxRouter()
 	chiRouter := routers.ChiRouter()
 	e := routers.EchoRouter()
+	r := routers.GinRouter()
 
 	gin.SetMode(gin.ReleaseMode)
-
-	r := routers.GinRouter()
 
 	// Standard lib routine
 	go func() {

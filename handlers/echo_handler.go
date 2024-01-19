@@ -133,6 +133,12 @@ func EchoUpdateUser(c echo.Context) error {
 	email := c.FormValue("email")
 	ageStr := c.FormValue("age")
 
+	age, err := strconv.ParseUint(ageStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting age to unit32:", err)
+		return c.String(http.StatusBadRequest, "Bad Request")
+	}
+
 	// Update user fields if provided
 	if name != "" {
 		existingUser.Name = name
@@ -143,18 +149,13 @@ func EchoUpdateUser(c echo.Context) error {
 	}
 
 	if ageStr != "" {
-		age, err := strconv.ParseUint(ageStr, 10, 32)
-		if err != nil {
-			log.Println("Error converting age to unit32:", err)
-			return c.String(http.StatusBadRequest, "Bad Request")
-		}
 		existingUser.Age = uint(age)
 	}
 
 	// Save the updated user to the database
 	db.Save(&existingUser)
 
-	return c.String(http.StatusCreated, "User updated")
+	return c.String(http.StatusOK, "User updated")
 }
 
 // DELETE USER

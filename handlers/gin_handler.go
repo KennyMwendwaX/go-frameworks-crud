@@ -110,3 +110,70 @@ func GinGetUser(c *gin.Context) {
 	// Return JSON response to the client
 	c.JSON(http.StatusOK, user)
 }
+
+// UPDATE USER
+func GinUpdateUser(c *gin.Context) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	// Retrieve user ID from the URL parameters
+	userIDStr := c.Param("id")
+
+	// Validate user ID
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userID to uint:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
+		return
+	}
+
+	var existingUser models.User
+
+	result := db.First(&existingUser, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Retrieve data from the form
+	name := c.PostForm("name")
+	email := c.PostForm("email")
+	ageStr := c.PostForm("age")
+
+	// Validate input
+	if name == "" || email == "" || ageStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Empty values"})
+		return
+	}
+
+	// Convert age to uint
+	age, err := strconv.ParseUint(ageStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting age to uint:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
+		return
+	}
+
+	// Update user fields if provided
+	if name != "" {
+		existingUser.Name = name
+	}
+
+	if email != "" {
+		existingUser.Email = email
+	}
+
+	if ageStr != "" {
+		existingUser.Age = uint(age)
+	}
+
+	// Save the updated user to the database
+	db.Save(&existingUser)
+
+	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
+}

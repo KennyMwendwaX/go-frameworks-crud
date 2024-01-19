@@ -10,6 +10,7 @@ func GinRouter() *gin.Engine {
 
 	r.GET("/users", handlers.GinGetUsers)
 	r.POST("/users", handlers.GinCreateUser)
+	r.GET("/users/:id", handlers.GinGetUser)
 
 	return r
 }
