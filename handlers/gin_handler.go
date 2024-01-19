@@ -77,3 +77,36 @@ func GinGetUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, users)
 }
+
+// GET ONE USER
+func GinGetUser(c *gin.Context) {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatal(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	// Retrieve user ID from the URL parameters
+	userIDStr := c.Param("id")
+
+	// Validate user ID
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting userID to uint:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
+		return
+	}
+
+	// Query the database for the user with the specified ID
+	var user models.User
+	result := db.First(&user, userID)
+	if result.Error != nil {
+		log.Println("Error fetching user from the database:", result.Error)
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Return JSON response to the client
+	c.JSON(http.StatusOK, user)
+}
