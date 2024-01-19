@@ -12,6 +12,7 @@ func GinRouter() *gin.Engine {
 	r.POST("/users", handlers.GinCreateUser)
 	r.GET("/users/:id", handlers.GinGetUser)
 	r.PUT("/users/:id", handlers.GinUpdateUser)
+	r.DELETE("/users/:id", handlers.GinDeleteUser)
 
 	return r
 }
