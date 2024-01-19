@@ -55,7 +55,6 @@ func GinCreateUser(c *gin.Context) {
 
 	// Return a success response
 	c.JSON(http.StatusCreated, gin.H{"message": "User created"})
-
 }
 
 // GET ALL USERS
