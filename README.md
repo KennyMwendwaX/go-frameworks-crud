@@ -57,7 +57,7 @@ go run main.go
 
 ## Routers and Endpoints
 
-### 1. Standard library Router
+### 1. Standard library net/http
 
 **Running at:** http://localhost:8000
 
