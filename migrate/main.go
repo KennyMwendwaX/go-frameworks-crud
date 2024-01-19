@@ -7,7 +7,7 @@ import (
 	"github.com/kenny-mwendwa/go-restapi-crud/models"
 )
 
-func MigrateDB() {
+func main() {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
