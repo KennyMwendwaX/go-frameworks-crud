@@ -176,6 +176,13 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	email := r.FormValue("email")
 	ageStr := r.FormValue("age")
 
+	age, err := strconv.ParseUint(ageStr, 10, 32)
+	if err != nil {
+		log.Println("Error converting age to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	// Update user fields if provided
 	if name != "" {
 		existingUser.Name = name
@@ -186,12 +193,6 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	if ageStr != "" {
-		age, err := strconv.ParseUint(ageStr, 10, 32)
-		if err != nil {
-			log.Println("Error converting age to unit32:", err)
-			http.Error(w, "Bad Request", http.StatusBadRequest)
-			return
-		}
 		existingUser.Age = uint(age)
 	}
 
