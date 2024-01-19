@@ -67,19 +67,19 @@ go run main.go
   ```
 - **Create User:**
   ```plaintext
-  POST /users
+  POST /users/create
   ```
 - **Get User:**
   ```plaintext
-  GET /users/:id
+  GET /users/
   ```
 - **Update User:**
   ```plaintext
-  PUT /users/:id
+  PUT /users/update/
   ```
 - **Delete User:**
   ```plaintext
-  DELETE /users/:id
+  DELETE /users/delete/
   ```
 
 ### 2. httprouter Router
