@@ -44,7 +44,7 @@ DB_NAME=your_database_name
 To initialize the database schema, run the migration script:
 
 ```bash
-go run migrate/main.go
+go run internal/migrate/main.go
 ```
 
 ### Running the application
@@ -52,7 +52,7 @@ go run migrate/main.go
 To initialize the database schema, run the migration script:
 
 ```bash
-go run main.go
+go run cmd/main.go
 ```
 
 ## Routers and Endpoints
