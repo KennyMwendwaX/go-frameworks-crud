@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kenny-mwendwa/go-restapi-crud/routers"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/routers"
 )
 
 func main() {
