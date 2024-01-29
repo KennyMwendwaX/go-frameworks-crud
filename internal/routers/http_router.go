@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/julienschmidt/httprouter"
-	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/handlers"
 )
 
 func HttpRouter() *httprouter.Router {

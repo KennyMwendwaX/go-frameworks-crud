@@ -3,7 +3,7 @@ package routers
 import (
 	"net/http"
 
-	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/handlers"
 )
 
 func StandardRouter() *http.ServeMux {

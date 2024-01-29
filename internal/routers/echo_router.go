@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/handlers"
 	"github.com/labstack/echo/v4"
 )
 

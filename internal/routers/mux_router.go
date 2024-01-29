@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/kenny-mwendwa/go-restapi-crud/handlers"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/handlers"
 )
 
 func MuxRouter() *mux.Router {

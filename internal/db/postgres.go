@@ -3,7 +3,7 @@ package db
 import (
 	"log"
 
-	"github.com/kenny-mwendwa/go-restapi-crud/config"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
