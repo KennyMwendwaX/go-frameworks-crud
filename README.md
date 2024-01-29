@@ -1,16 +1,19 @@
 # Go RESTful CRUD Application
 
-This is a simple CRUD (Create, Read, Update, Delete) application written in Go, showcasing different routers and frameworks. The application allows you to manage user data using various web frameworks and routers.
+This is a simple CRUD (Create, Read, Update, Delete) application written in Go, showcasing different routers and frameworks. The application allows you to perform operation on user data using various web frameworks and routers, including Chi, Echo, Gin, HttpRouter, Mux, and the standard net/http package.
 
 ## Project Overview
 
-The project follows a modular structure with separate packages for routers, handlers, models, and database connectivity.
+The project follows the standard Go project layout and naming conventions, providing a clean and modular structure:
 
-- `handlers`: Contains handler functions for each CRUD operation using different routers.
-- `models`: Defines the data structure for the User entity.
-- `routers`: Implements routers using various Go web frameworks, including Chi, Mux, HttpRouter, Standard net/http, Echo, and Gin.
-- `db`: Manages database connectivity.
-- `migrate`: Manages database schema migration.
+- `cmd/`: Contains the main application entry point (`main.go`). This is where the main application logic resides.
+- `internal/`: Contains internal packages and modules that are specific to this application. These packages are not intended to be imported by external packages.
+  - `config/`: Handles application configuration, such as database configuration (`db.go`).
+  - `db/`: Handles database connectivity (`postgres.go`).
+  - `models/`: Defines application data models (`user.go`).
+  - `migrate/`: Contains scripts for database migrations (`main.go`).
+  - `routers/`: Contains router implementations (`chi_router.go`, `echo_router.go`, etc.).
+  - `handlers/`: Contains handler functions for each CRUD operation (`chi_handler.go`, `echo_handler.go`, etc.).
 
 ## Getting Started
 
