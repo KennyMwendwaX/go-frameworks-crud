@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/kenny-mwendwa/go-restapi-crud/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/models"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/db"
+	"github.com/kenny-mwendwa/go-restapi-crud/internal/models"
 )
 
 func main() {
