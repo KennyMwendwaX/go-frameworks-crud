@@ -1,6 +1,6 @@
 module github.com/kenny-mwendwa/go-restapi-crud
 
-go 1.21.6
+go 1.22
 
 require (
 	github.com/bytedance/sonic v1.10.2 // indirect
