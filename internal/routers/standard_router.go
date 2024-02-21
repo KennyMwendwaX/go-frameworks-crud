@@ -9,11 +9,11 @@ import (
 func StandardRouter() *http.ServeMux {
 	r := http.NewServeMux()
 
-	r.HandleFunc("/users", handlers.StandardGetUsers)
-	r.HandleFunc("/users/create", handlers.StandardCreateUser)
-	r.HandleFunc("/users/", handlers.StandardGetUser)
-	r.HandleFunc("/users/update/", handlers.StandardUpdateUser)
-	r.HandleFunc("/users/delete/", handlers.StandardDeleteUser)
+	r.HandleFunc("GET /users", handlers.StandardGetUsers)
+	r.HandleFunc("POST /users", handlers.StandardCreateUser)
+	r.HandleFunc("GET /users/{id}", handlers.StandardGetUser)
+	r.HandleFunc("PUT /users/{id}", handlers.StandardUpdateUser)
+	r.HandleFunc("DELETE /users/{id}", handlers.StandardDeleteUser)
 
 	return r
 }
