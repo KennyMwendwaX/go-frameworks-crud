@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/kenny-mwendwa/go-restapi-crud/internal/db"
 	"github.com/kenny-mwendwa/go-restapi-crud/internal/models"
@@ -113,9 +111,12 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract the userId from the url parameters
-	userId, err := strconv.ParseUint(r.PathValue("id"), 10, 32)
+	userIdStr := r.PathValue("id")
+
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
+		log.Println("Error converting userId to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -152,9 +153,12 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract the userId from the url parameters
-	userId, err := strconv.ParseUint(r.PathValue("id"), 10, 32)
+	userIdStr := r.PathValue("id")
+
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
+		log.Println("Error converting userId to unit32:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -206,18 +210,10 @@ func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract user ID from request URL manually
-	path := r.URL.Path
-	if path == "/users/delete/" {
-		log.Println("User ID not provided in the URL")
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
+	// Extract the userId from the url parameters
+	userIdStr := r.PathValue("id")
 
-	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
-	userIDStr := strings.TrimSuffix(path[len("/users/delete/"):], "/")
-	fmt.Println(userIDStr)
-	userId, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
