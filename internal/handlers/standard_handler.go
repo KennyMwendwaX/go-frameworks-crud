@@ -120,19 +120,17 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Trim the trailing slash and extract user ID from the path
-	userIDStr := strings.TrimSuffix(path[len("/users/"):], "/")
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	// Extract the userId from the url parameters
+	userId, err := strconv.ParseUint(r.PathValue("id"), 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
 	var user models.User
 
 	// Query the DB for the user with the specified ID
-	result := db.First(&user, userID)
+	result := db.First(&user, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)

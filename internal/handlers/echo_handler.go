@@ -82,9 +82,9 @@ func EchoGetUser(c echo.Context) error {
 	}
 
 	// Extract user ID from request URL parameters
-	userIDstr := c.Param("id")
+	userIdStr := c.Param("id")
 
-	userID, err := strconv.ParseUint(userIDstr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -92,7 +92,7 @@ func EchoGetUser(c echo.Context) error {
 
 	var user models.User
 
-	result := db.First(&user, userID)
+	result := db.First(&user, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		return c.String(http.StatusNotFound, "User not found")
@@ -113,9 +113,9 @@ func EchoUpdateUser(c echo.Context) error {
 	}
 
 	// Extract user ID from request URL parameters
-	userIDstr := c.Param("id")
+	userIdStr := c.Param("id")
 
-	userID, err := strconv.ParseUint(userIDstr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -123,7 +123,7 @@ func EchoUpdateUser(c echo.Context) error {
 
 	var existingUser models.User
 
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		return c.String(http.StatusNotFound, "User not found")
@@ -167,9 +167,9 @@ func EchoDeleteUser(c echo.Context) error {
 	}
 
 	// Extract user ID from request URL parameters
-	userIDstr := c.Param("id")
+	userIdStr := c.Param("id")
 
-	userID, err := strconv.ParseUint(userIDstr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -177,7 +177,7 @@ func EchoDeleteUser(c echo.Context) error {
 
 	var existingUser models.User
 
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		return c.String(http.StatusNotFound, "User not found")
