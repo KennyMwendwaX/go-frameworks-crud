@@ -112,9 +112,9 @@ func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	// Extract user ID from request URL parameters
-	userIDStr := ps.ByName("id")
+	userIdStr := ps.ByName("id")
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -124,7 +124,7 @@ func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var user models.User
 
 	// Query the DB for the user with the specified ID
-	result := db.First(&user, userID)
+	result := db.First(&user, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
@@ -154,9 +154,9 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	// Extract user ID from request URL parameters
-	userIDStr := ps.ByName("id")
+	userIdStr := ps.ByName("id")
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -164,7 +164,7 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	var existingUser models.User
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
@@ -212,17 +212,17 @@ func HttpDeleteUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	// Extract user ID from request URL parameters
-	userIDStr := ps.ByName("id")
+	userIdStr := ps.ByName("id")
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userID to unit32:", err)
+		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	var existingUser models.User
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)

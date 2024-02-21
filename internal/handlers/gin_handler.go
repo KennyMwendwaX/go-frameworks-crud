@@ -88,19 +88,19 @@ func GinGetUser(c *gin.Context) {
 	}
 
 	// Retrieve user ID from the URL parameters
-	userIDStr := c.Param("id")
+	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userID to uint:", err)
+		log.Println("Error converting userId to uint:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
 		return
 	}
 
 	// Query the database for the user with the specified ID
 	var user models.User
-	result := db.First(&user, userID)
+	result := db.First(&user, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -121,19 +121,19 @@ func GinUpdateUser(c *gin.Context) {
 	}
 
 	// Retrieve user ID from the URL parameters
-	userIDStr := c.Param("id")
+	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userID to uint:", err)
+		log.Println("Error converting userId to uint:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
 		return
 	}
 
 	var existingUser models.User
 
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -182,19 +182,19 @@ func GinDeleteUser(c *gin.Context) {
 	}
 
 	// Retrieve user ID from the URL parameters
-	userIDStr := c.Param("id")
+	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userID to uint:", err)
+		log.Println("Error converting userId to uint:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
 		return
 	}
 
 	var existingUser models.User
 
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})

@@ -112,14 +112,6 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract user ID from request URL manually
-	path := r.URL.Path
-	if path == "/users/" {
-		log.Println("User ID not provided in the URL")
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
 	// Extract the userId from the url parameters
 	userId, err := strconv.ParseUint(r.PathValue("id"), 10, 32)
 	if err != nil {
@@ -159,25 +151,15 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract user ID from request URL manually
-	path := r.URL.Path
-	if path == "/users/update/" {
-		log.Println("User ID not provided in the URL")
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
-	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
-	userIDStr := strings.TrimSuffix(path[len("/users/update/"):], "/")
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	// Extract the userId from the url parameters
+	userId, err := strconv.ParseUint(r.PathValue("id"), 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
 	var existingUser models.User
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
@@ -235,7 +217,7 @@ func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 	// Trim the trailing slash and extract user ID from the path, assuming "/users/{id}/"
 	userIDStr := strings.TrimSuffix(path[len("/users/delete/"):], "/")
 	fmt.Println(userIDStr)
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -243,7 +225,7 @@ func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var existingUser models.User
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)

@@ -112,14 +112,14 @@ func MuxGetUser(w http.ResponseWriter, r *http.Request) {
 
 	// Extract user ID from request URL parameters
 	vars := mux.Vars(r)
-	userIDStr, ok := vars["id"]
+	userIdStr, ok := vars["id"]
 	if !ok {
 		log.Println("User ID not provided in the URL")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -129,7 +129,7 @@ func MuxGetUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	// Query the DB for the user with the specified ID
-	result := db.First(&user, userID)
+	result := db.First(&user, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
@@ -160,14 +160,14 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Extract user ID from request URL parameters
 	vars := mux.Vars(r)
-	userIDStr, ok := vars["id"]
+	userIdStr, ok := vars["id"]
 	if !ok {
 		log.Println("User ID not provided in the url")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -176,7 +176,7 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var existingUser models.User
 
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
@@ -225,23 +225,23 @@ func MuxDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	// Extract user ID from request URL parameters
 	vars := mux.Vars(r)
-	userIDStr, ok := vars["id"]
+	userIdStr, ok := vars["id"]
 	if !ok {
 		log.Println("User ID not provided in the url")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userID to unit32:", err)
+		log.Println("Error converting userId to unit32:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	var existingUser models.User
 
-	result := db.First(&existingUser, userID)
+	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
