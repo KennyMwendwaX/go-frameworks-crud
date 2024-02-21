@@ -70,19 +70,19 @@ go run cmd/main.go
   ```
 - **Create User:**
   ```plaintext
-  POST /users/create
+  POST /users
   ```
 - **Get User:**
   ```plaintext
-  GET /users/
+  GET /users/:id
   ```
 - **Update User:**
   ```plaintext
-  PUT /users/update/
+  PUT /users/:id
   ```
 - **Delete User:**
   ```plaintext
-  DELETE /users/delete/
+  DELETE /users/:id
   ```
 
 ### 2. httprouter Router
