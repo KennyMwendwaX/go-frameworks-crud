@@ -5,6 +5,6 @@ sql:
     schema: "./internals/sql/schema.sql"
     gen:
       go:
-        package: "models"
-        out: "./internals/models"
+        package: "db"
+        out: "./internals/db"
         sql_package: "pgx/v5"
