@@ -60,7 +60,7 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 		Email: email,
 		Age:   int32(age),
 	}); err != nil {
-		log.Println("Error creating user:", err.E)
+		log.Println("Error creating user:", err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -71,19 +71,21 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 
 // GET ALL USERS
 func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
 
-	var users []models.User
+	query := db.New(conn)
 
-	// Query the database for all users
-	result := db.Find(&users)
-	if result.Error != nil {
-		log.Println("Error fetching users from the database:", result.Error)
+	users, err := query.GetUsers(ctx)
+	if err != nil {
+		log.Println("Error fetching users from the database:", err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
