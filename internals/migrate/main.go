@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 )
@@ -33,7 +34,7 @@ func main() {
 	}
 
 	// Run migrations
-	m, err := migrate.NewWithDatabaseInstance("file://internals/sql", "postgres", dbInstance)
+	m, err := migrate.NewWithDatabaseInstance("file://internals/db/migrations", "postgres", dbInstance)
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
