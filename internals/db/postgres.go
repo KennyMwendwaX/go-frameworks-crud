@@ -10,7 +10,6 @@ import (
 )
 
 func ConnectDB() (*pgx.Conn, error) {
-	// Load environment variables from .env file
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading DATABASE_URL from .env file")
