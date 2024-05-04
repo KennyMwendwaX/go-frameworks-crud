@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER
@@ -223,12 +222,17 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // DELETE USER
 func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
@@ -240,15 +244,18 @@ func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var existingUser models.User
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	_, err = query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	db.Delete(&existingUser)
+	if err := query.DeleteUser(ctx, int32(userId)); err != nil {
+		log.Println("Error deleting user from the database:", err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
