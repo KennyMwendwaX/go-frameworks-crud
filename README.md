@@ -7,7 +7,7 @@ This is a simple CRUD (Create, Read, Update, Delete) application written in Go, 
 The project follows the standard Go project layout and naming conventions, providing a clean and modular structure:
 
 - `cmd/`: Contains the main application entry point (`main.go`). This is where the main application logic resides.
-- `internal/`: Contains internal packages and modules that are specific to this application. These packages are not intended to be imported by external packages.
+- `internals/`: Contains internal packages and modules that are specific to this application. These packages are not intended to be imported by external packages.
   - `config/`: Handles application configuration, such as database configuration (`db.go`).
   - `db/`: Handles database connectivity (`postgres.go`).
   - `models/`: Defines application data models (`user.go`).
