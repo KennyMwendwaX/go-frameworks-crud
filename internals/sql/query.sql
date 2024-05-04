@@ -6,7 +6,7 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM users
 ORDER BY created_at DESC;
 
--- name: CreateUser :one
+-- name: CreateUser :exec
 INSERT INTO users (
     name, email, age
 ) VALUES (
@@ -18,8 +18,7 @@ UPDATE users
 SET name = $2,
     email = $3,
     age = $4
-WHERE id = $1
-RETURNING *;
+WHERE id = $1;
 
 -- name: DeleteUser :exec
 DELETE FROM users
