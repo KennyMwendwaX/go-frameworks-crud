@@ -81,11 +81,16 @@ func EchoGetUsers(c echo.Context) error {
 
 // GET ONE USER
 func EchoGetUser(c echo.Context) error {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
@@ -96,11 +101,10 @@ func EchoGetUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Bad Request")
 	}
 
-	var user models.User
-
-	result := db.First(&user, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	// Query the DB for the user with the specified ID
+	user, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		return c.String(http.StatusNotFound, "User not found")
 	}
 
