@@ -1,19 +1,27 @@
 package db
 
 import (
+	"context"
 	"log"
+	"os"
 
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/config"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
 )
 
-func ConnectDB() (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(config.DB_URI), &gorm.Config{})
+func ConnectDB() (*pgx.Conn, error) {
+	// Load environment variables from .env file
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
+		log.Fatal("Error loading DATABASE_URL from .env file")
 	}
 
-	return db, nil
+	connStr := os.Getenv("DATABASE_URL")
+
+	conn, err := pgx.Connect(context.Background(), connStr)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return conn, nil
 }
