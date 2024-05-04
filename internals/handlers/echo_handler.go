@@ -56,17 +56,20 @@ func EchoCreateUser(c echo.Context) error {
 
 // GET ALL USERS
 func EchoGetUsers(c echo.Context) error {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	defer conn.Close(ctx)
 
-	var users []models.User
+	query := db.New(conn)
 
-	result := db.Find(&users)
-	if result.Error != nil {
-		log.Println("Error fetching users from the database:", result.Error)
+	users, err := query.GetUsers(ctx)
+	if err != nil {
+		log.Println("Error fetching users from the database:", err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
