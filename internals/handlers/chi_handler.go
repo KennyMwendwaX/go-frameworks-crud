@@ -46,7 +46,7 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert age to unit
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to unit:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -213,7 +213,7 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 		Age:   int32(age),
 	}); err != nil {
 		log.Println("Error updating user:", err)
-		http.Error(w, "Bad Request", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -237,9 +237,9 @@ func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}

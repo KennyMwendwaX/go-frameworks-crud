@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 	"github.com/labstack/echo/v4"
 )
 
@@ -34,7 +33,7 @@ func EchoCreateUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Bad Request: Empty values")
 	}
 
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to unit:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -95,9 +94,9 @@ func EchoGetUser(c echo.Context) error {
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
 	}
 
@@ -116,26 +115,29 @@ func EchoGetUser(c echo.Context) error {
 
 // UPDATE USER
 func EchoUpdateUser(c echo.Context) error {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
 	}
 
-	var existingUser models.User
-
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	existingUser, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		return c.String(http.StatusNotFound, "User not found")
 	}
 
@@ -143,9 +145,9 @@ func EchoUpdateUser(c echo.Context) error {
 	email := c.FormValue("email")
 	ageStr := c.FormValue("age")
 
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to unit32:", err)
+		log.Println("Error converting age to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
 	}
 
@@ -159,41 +161,54 @@ func EchoUpdateUser(c echo.Context) error {
 	}
 
 	if ageStr != "" {
-		existingUser.Age = uint(age)
+		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
-	db.Save(&existingUser)
-
+	// Save the updated user to the database
+	if err := query.UpdateUser(ctx, db.UpdateUserParams{
+		Name:  name,
+		Email: email,
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error updating user:", err)
+		return c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
 	return c.String(http.StatusOK, "User updated")
 }
 
 // DELETE USER
 func EchoDeleteUser(c echo.Context) error {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
 	}
 
-	var existingUser models.User
-
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	_, err = query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error)
 		return c.String(http.StatusNotFound, "User not found")
 	}
 
-	db.Delete(&existingUser)
+	if err := query.DeleteUser(ctx, int32(userId)); err != nil {
+		log.Println("Error deleting user from the database:", err.Error())
+		return c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
 
 	return c.String(http.StatusNoContent, "User deleted")
 }
