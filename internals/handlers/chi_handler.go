@@ -45,10 +45,10 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert age to unit
+	// Convert age to integer
 	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to unit:", err)
+		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}

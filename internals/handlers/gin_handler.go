@@ -1,23 +1,28 @@
 package handlers
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER
 func GinCreateUser(c *gin.Context) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Retrieve data from the form
 	name := c.PostForm("name")
@@ -30,25 +35,21 @@ func GinCreateUser(c *gin.Context) {
 		return
 	}
 
-	// Convert age to uint
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	// Convert age to integer
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to uint:", err)
+		log.Println("Error converting age to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
 		return
 	}
 
-	// Create a new user
-	newUser := models.User{
+	// Create user
+	if err := query.CreateUser(ctx, db.CreateUserParams{
 		Name:  name,
 		Email: email,
-		Age:   uint(age),
-	}
-
-	// Save the new user to the database
-	result := db.Create(&newUser)
-	if result.Error != nil {
-		log.Println("Error creating user:", result.Error)
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error creating user:", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
@@ -59,18 +60,21 @@ func GinCreateUser(c *gin.Context) {
 
 // GET ALL USERS
 func GinGetUsers(c *gin.Context) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	defer conn.Close(ctx)
 
-	var users []models.User
+	query := db.New(conn)
 
-	result := db.Find(&users)
-	if result.Error != nil {
-		log.Println("Error fetching users from the database:", result.Error)
+	users, err := query.GetUsers(ctx)
+	if err != nil {
+		log.Println("Error fetching users from the database:", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
@@ -80,29 +84,33 @@ func GinGetUsers(c *gin.Context) {
 
 // GET ONE USER
 func GinGetUser(c *gin.Context) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Retrieve user ID from the URL parameters
 	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to uint:", err)
+		log.Println("Error converting userId to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
 		return
 	}
 
 	// Query the database for the user with the specified ID
-	var user models.User
-	result := db.First(&user, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	user, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -113,29 +121,32 @@ func GinGetUser(c *gin.Context) {
 
 // UPDATE USER
 func GinUpdateUser(c *gin.Context) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Retrieve user ID from the URL parameters
 	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to uint:", err)
+		log.Println("Error converting userId to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
 		return
 	}
 
-	var existingUser models.User
-
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	existingUser, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -145,10 +156,10 @@ func GinUpdateUser(c *gin.Context) {
 	email := c.PostForm("email")
 	ageStr := c.PostForm("age")
 
-	// Convert age to uint
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	// Convert age to integer
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to uint:", err)
+		log.Println("Error converting age to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
 		return
 	}
@@ -163,45 +174,59 @@ func GinUpdateUser(c *gin.Context) {
 	}
 
 	if ageStr != "" {
-		existingUser.Age = uint(age)
+		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
-	db.Save(&existingUser)
-
+	if err := query.UpdateUser(ctx, db.UpdateUserParams{
+		Name:  name,
+		Email: email,
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error updating user:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
 }
 
 // DELETE USER
 func GinDeleteUser(c *gin.Context) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Retrieve user ID from the URL parameters
 	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to uint:", err)
+		log.Println("Error converting userId to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
 		return
 	}
 
-	var existingUser models.User
-
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	_, err = query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error)
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	db.Delete(&existingUser)
+	if err := query.DeleteUser(ctx, int32(userId)); err != nil {
+		log.Println("Error deleting user from the database:", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{"message": "User deleted"})
 }
