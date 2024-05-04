@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/models"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER

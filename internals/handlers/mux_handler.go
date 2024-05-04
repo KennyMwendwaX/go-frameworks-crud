@@ -6,15 +6,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/models"
+	"github.com/gorilla/mux"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER
-func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
+func MuxCreateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
-
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -68,7 +67,7 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET ALL USERS
-func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
+func MuxGetUsers(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -103,7 +102,7 @@ func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET ONE USER
-func ChiGetUser(w http.ResponseWriter, r *http.Request) {
+func MuxGetUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -112,7 +111,13 @@ func ChiGetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract user ID from request URL parameters
-	userIdStr := chi.URLParam(r, "id")
+	vars := mux.Vars(r)
+	userIdStr, ok := vars["id"]
+	if !ok {
+		log.Println("User ID not provided in the URL")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -145,7 +150,7 @@ func ChiGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UPDATE USER
-func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
+func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -154,7 +159,13 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract user ID from request URL parameters
-	userIdStr := chi.URLParam(r, "id")
+	vars := mux.Vars(r)
+	userIdStr, ok := vars["id"]
+	if !ok {
+		log.Println("User ID not provided in the url")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -164,6 +175,7 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var existingUser models.User
+
 	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)
@@ -203,7 +215,7 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DELETE USER
-func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
+func MuxDeleteUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -212,7 +224,13 @@ func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract user ID from request URL parameters
-	userIdStr := chi.URLParam(r, "id")
+	vars := mux.Vars(r)
+	userIdStr, ok := vars["id"]
+	if !ok {
+		log.Println("User ID not provided in the url")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -222,6 +240,7 @@ func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var existingUser models.User
+
 	result := db.First(&existingUser, userId)
 	if result.Error != nil {
 		log.Println("Error fetching user from the database:", result.Error)

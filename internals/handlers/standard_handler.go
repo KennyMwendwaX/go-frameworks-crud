@@ -6,13 +6,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/models"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER
-func HttpCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func StandardCreateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 
 	if err != nil {
@@ -68,7 +67,7 @@ func HttpCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 // GET ALL USERS
-func HttpGetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func StandardGetUsers(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -103,7 +102,7 @@ func HttpGetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 // GET ONE USER
-func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -111,8 +110,8 @@ func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	// Extract user ID from request URL parameters
-	userIdStr := ps.ByName("id")
+	// Extract the userId from the url parameters
+	userIdStr := r.PathValue("id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -145,7 +144,7 @@ func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 // UPDATE USER
-func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -153,8 +152,8 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 
-	// Extract user ID from request URL parameters
-	userIdStr := ps.ByName("id")
+	// Extract the userId from the url parameters
+	userIdStr := r.PathValue("id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -203,7 +202,7 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 }
 
 // DELETE USER
-func HttpDeleteUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -211,8 +210,8 @@ func HttpDeleteUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 
-	// Extract user ID from request URL parameters
-	userIdStr := ps.ByName("id")
+	// Extract the userId from the url parameters
+	userIdStr := r.PathValue("id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {

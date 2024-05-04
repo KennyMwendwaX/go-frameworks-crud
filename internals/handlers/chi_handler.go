@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/models"
+	"github.com/go-chi/chi/v5"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER
-func StandardCreateUser(w http.ResponseWriter, r *http.Request) {
+func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 
 	if err != nil {
@@ -67,7 +68,7 @@ func StandardCreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET ALL USERS
-func StandardGetUsers(w http.ResponseWriter, r *http.Request) {
+func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -102,7 +103,7 @@ func StandardGetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET ONE USER
-func StandardGetUser(w http.ResponseWriter, r *http.Request) {
+func ChiGetUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -110,8 +111,8 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract the userId from the url parameters
-	userIdStr := r.PathValue("id")
+	// Extract user ID from request URL parameters
+	userIdStr := chi.URLParam(r, "id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -144,7 +145,7 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UPDATE USER
-func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
+func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -152,8 +153,8 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract the userId from the url parameters
-	userIdStr := r.PathValue("id")
+	// Extract user ID from request URL parameters
+	userIdStr := chi.URLParam(r, "id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -202,7 +203,7 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DELETE USER
-func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
+func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -210,8 +211,8 @@ func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract the userId from the url parameters
-	userIdStr := r.PathValue("id")
+	// Extract user ID from request URL parameters
+	userIdStr := chi.URLParam(r, "id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {

@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/kenny-mwendwa/go-restapi-crud/internal/handlers"
+	"github.com/kenny-mwendwa/go-restapi-crud/internals/handlers"
 )
 
 func ChiRouter() *chi.Mux {
