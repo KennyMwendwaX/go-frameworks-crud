@@ -108,29 +108,32 @@ func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
 
 // GET ONE USER
 func ChiGetUser(w http.ResponseWriter, r *http.Request) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	var user models.User
-
 	// Query the DB for the user with the specified ID
-	result := db.First(&user, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	user, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
