@@ -4,7 +4,7 @@ WHERE id = $1 LIMIT 1;
 
 -- name: GetUsers :many
 SELECT * FROM users
-ORDER BY name;
+ORDER BY created_at DESC;
 
 -- name: CreateUser :one
 INSERT INTO users (
