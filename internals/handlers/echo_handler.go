@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,11 +13,16 @@ import (
 
 // CREATE USER
 func EchoCreateUser(c echo.Context) error {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	name := c.FormValue("name")
 	email := c.FormValue("email")
@@ -34,16 +40,13 @@ func EchoCreateUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Bad Request")
 	}
 
-	newUser := models.User{
+	// Create user
+	if err := query.CreateUser(ctx, db.CreateUserParams{
 		Name:  name,
 		Email: email,
-		Age:   uint(age),
-	}
-
-	// Create user
-	result := db.Create(&newUser)
-	if result.Error != nil {
-		log.Println("Error creating user:", result.Error)
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error creating user:", err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
