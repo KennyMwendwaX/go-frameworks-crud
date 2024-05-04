@@ -153,27 +153,31 @@ func ChiGetUser(w http.ResponseWriter, r *http.Request) {
 
 // UPDATE USER
 func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	var existingUser models.User
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	existingUser, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
@@ -183,9 +187,9 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	ageStr := r.FormValue("age")
 
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to unit32:", err)
+		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -200,11 +204,19 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ageStr != "" {
-		existingUser.Age = uint(age)
+		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
-	db.Save(&existingUser)
+	if err := query.UpdateUser(ctx, db.UpdateUserParams{
+		Name:  name,
+		Email: email,
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error updating user:", err)
+		http.Error(w, "Bad Request", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
