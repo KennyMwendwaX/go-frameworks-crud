@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/handlers"
+	"github.com/kenny-mwendwa/go-crud-frameworks/internals/handlers"
 )
 
 func GinRouter() *gin.Engine {

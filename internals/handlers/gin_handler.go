@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
+	"github.com/kenny-mwendwa/go-crud-frameworks/internals/db"
 )
 
 // CREATE USER

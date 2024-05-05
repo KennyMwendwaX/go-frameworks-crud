@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
+	"github.com/kenny-mwendwa/go-crud-frameworks/internals/db"
 )
 
 // CREATE USER

@@ -1,4 +1,4 @@
-module github.com/kenny-mwendwa/go-restapi-crud
+module github.com/kenny-mwendwa/go-crud-frameworks
 
 go 1.22.0
 
