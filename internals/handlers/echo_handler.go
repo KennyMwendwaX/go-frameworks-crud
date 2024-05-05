@@ -201,7 +201,7 @@ func EchoDeleteUser(c echo.Context) error {
 
 	_, err = query.GetUser(ctx, int32(userId))
 	if err != nil {
-		log.Println("Error fetching user from the database:", err.Error)
+		log.Println("Error fetching user from the database:", err.Error())
 		return c.String(http.StatusNotFound, "User not found")
 	}
 

@@ -217,7 +217,7 @@ func GinDeleteUser(c *gin.Context) {
 
 	_, err = query.GetUser(ctx, int32(userId))
 	if err != nil {
-		log.Println("Error fetching user from the database:", err.Error)
+		log.Println("Error fetching user from the database:", err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}

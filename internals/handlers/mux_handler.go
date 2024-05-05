@@ -264,7 +264,7 @@ func MuxDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	_, err = query.GetUser(ctx, int32(userId))
 	if err != nil {
-		log.Println("Error fetching user from the database:", err.Error)
+		log.Println("Error fetching user from the database:", err.Error())
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
