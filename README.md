@@ -10,10 +10,14 @@ The project follows the standard Go project layout and naming conventions, provi
 - `internals/`: Contains internal packages and modules that are specific to this application. These packages are not intended to be imported by external packages.
   - `config/`: Handles application configuration, such as database configuration (`db.go`).
   - `db/`: Handles database connectivity (`postgres.go`).
-  - `models/`: Defines application data models (`user.go`).
-  - `migrate/`: Contains scripts for database migrations (`main.go`).
+    - `connection.go`: Handles database connection to a postgres database using [pgx](https://github.com/jackc/pgx).
+    - `migrations/`: Contains sql files for migrations to the database using golang-migrate.
+    - `db.go`, `models.go` & `query.sql.go`: Contains [sqlc](https://docs.sqlc.dev/en/latest/index.html) generated type safe GO code generated from `schema.sql` and `query.sql` files.
+  - `migrate/`: Contains script `main.go` for database migration using golang-migrate.
   - `routers/`: Contains router implementations (`chi_router.go`, `echo_router.go`, etc.).
   - `handlers/`: Contains handler functions for each CRUD operation (`chi_handler.go`, `echo_handler.go`, etc.).
+  - `sql/`: Contains `schema.sql` and `query.sql` files for generating type safe GO code from the compiled sql using sqlc.
+- `sqlc.yaml`: This is the configuration file used for working with [sqlc](https://docs.sqlc.dev/en/latest/index.html).
 
 ## Getting Started
 
@@ -35,11 +39,8 @@ Ensure you have the following installed on your machine:
 Create a `.env` file in the root of the project with the following content:
 
 ```env
-DB_HOST=your_database_host
-DB_PORT=your_database_port
-DB_USER=your_database_user
-DB_PASSWORD=your_database_password
-DB_NAME=your_database_name
+DATABASE_URL="postgresql://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME"
+
 ```
 
 ### Running Migrations
@@ -47,7 +48,7 @@ DB_NAME=your_database_name
 To initialize the database schema, run the migration script:
 
 ```bash
-go run internal/migrate/main.go
+go run internals/migrate/main.go
 ```
 
 ### Running the application
