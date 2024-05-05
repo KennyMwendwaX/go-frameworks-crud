@@ -33,7 +33,7 @@ func EchoCreateUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Bad Request: Empty values")
 	}
 
-	age, err := strconv.ParseInt(ageStr, 10, 32)
+	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to unit:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -94,7 +94,7 @@ func EchoGetUser(c echo.Context) error {
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -129,7 +129,7 @@ func EchoUpdateUser(c echo.Context) error {
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
@@ -145,31 +145,28 @@ func EchoUpdateUser(c echo.Context) error {
 	email := c.FormValue("email")
 	ageStr := c.FormValue("age")
 
-	age, err := strconv.ParseInt(ageStr, 10, 32)
-	if err != nil {
-		log.Println("Error converting age to integer:", err)
-		return c.String(http.StatusBadRequest, "Bad Request")
-	}
-
 	// Update user fields if provided
 	if name != "" {
 		existingUser.Name = name
 	}
-
 	if email != "" {
 		existingUser.Email = email
 	}
-
 	if ageStr != "" {
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			log.Println("Error converting age to integer:", err)
+			return c.String(http.StatusBadRequest, "Bad Request")
+		}
 		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
-	// Save the updated user to the database
 	if err := query.UpdateUser(ctx, db.UpdateUserParams{
-		Name:  name,
-		Email: email,
-		Age:   int32(age),
+		ID:    existingUser.ID,
+		Name:  existingUser.Name,
+		Email: existingUser.Email,
+		Age:   existingUser.Age,
 	}); err != nil {
 		log.Println("Error updating user:", err)
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
@@ -193,7 +190,7 @@ func EchoDeleteUser(c echo.Context) error {
 	// Extract user ID from request URL parameters
 	userIdStr := c.Param("id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		return c.String(http.StatusBadRequest, "Bad Request")
