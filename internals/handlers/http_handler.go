@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -8,18 +9,21 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/kenny-mwendwa/go-restapi-crud/internals/db"
-	"github.com/kenny-mwendwa/go-restapi-crud/internals/models"
 )
 
 // CREATE USER
 func HttpCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
 
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Parse form data
 	err = r.ParseForm()
@@ -41,24 +45,21 @@ func HttpCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 		return
 	}
 
-	// Convert age to unit
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	// Convert age to integer
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to unit:", err)
+		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	newUser := models.User{
+	// Create user
+	if err := query.CreateUser(ctx, db.CreateUserParams{
 		Name:  name,
 		Email: email,
-		Age:   uint(age),
-	}
-
-	// Create user
-	result := db.Create(&newUser)
-	if result.Error != nil {
-		log.Println("Error creating user:", result.Error)
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error creating user:", err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -69,19 +70,22 @@ func HttpCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 
 // GET ALL USERS
 func HttpGetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
 
-	var users []models.User
+	query := db.New(conn)
 
 	// Query the database for all users
-	result := db.Find(&users)
-	if result.Error != nil {
-		log.Println("Error fetching users from the database:", result.Error)
+	users, err := query.GetUsers(ctx)
+	if err != nil {
+		log.Println("Error fetching users from the database:", err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -104,29 +108,32 @@ func HttpGetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 // GET ONE USER
 func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := ps.ByName("id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	var user models.User
-
 	// Query the DB for the user with the specified ID
-	result := db.First(&user, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	user, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
@@ -146,27 +153,31 @@ func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 // UPDATE USER
 func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := ps.ByName("id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	var existingUser models.User
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	existingUser, err := query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error())
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
@@ -176,9 +187,9 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	email := r.FormValue("email")
 	ageStr := r.FormValue("age")
 
-	age, err := strconv.ParseUint(ageStr, 10, 32)
+	age, err := strconv.ParseInt(ageStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting age to unit32:", err)
+		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -193,43 +204,59 @@ func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	if ageStr != "" {
-		existingUser.Age = uint(age)
+		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
-	db.Save(&existingUser)
+	if err := query.UpdateUser(ctx, db.UpdateUserParams{
+		Name:  name,
+		Email: email,
+		Age:   int32(age),
+	}); err != nil {
+		log.Println("Error updating user:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
 
 // DELETE USER
 func HttpDeleteUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	db, err := db.ConnectDB()
+	ctx := context.Background()
+
+	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	defer conn.Close(ctx)
+
+	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
 	userIdStr := ps.ByName("id")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	userId, err := strconv.ParseInt(userIdStr, 10, 32)
 	if err != nil {
-		log.Println("Error converting userId to unit32:", err)
+		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	var existingUser models.User
-	result := db.First(&existingUser, userId)
-	if result.Error != nil {
-		log.Println("Error fetching user from the database:", result.Error)
+	_, err = query.GetUser(ctx, int32(userId))
+	if err != nil {
+		log.Println("Error fetching user from the database:", err.Error)
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	db.Delete(&existingUser)
+	if err := query.DeleteUser(ctx, int32(userId)); err != nil {
+		log.Println("Error deleting user from the database:", err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
