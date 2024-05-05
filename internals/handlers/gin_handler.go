@@ -36,7 +36,7 @@ func GinCreateUser(c *gin.Context) {
 	}
 
 	// Convert age to integer
-	age, err := strconv.ParseInt(ageStr, 10, 32)
+	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
@@ -100,7 +100,7 @@ func GinGetUser(c *gin.Context) {
 	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
@@ -137,7 +137,7 @@ func GinUpdateUser(c *gin.Context) {
 	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
@@ -156,32 +156,29 @@ func GinUpdateUser(c *gin.Context) {
 	email := c.PostForm("email")
 	ageStr := c.PostForm("age")
 
-	// Convert age to integer
-	age, err := strconv.ParseInt(ageStr, 10, 32)
-	if err != nil {
-		log.Println("Error converting age to integer:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
-		return
-	}
-
 	// Update user fields if provided
 	if name != "" {
 		existingUser.Name = name
 	}
-
 	if email != "" {
 		existingUser.Email = email
 	}
-
 	if ageStr != "" {
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			log.Println("Error converting age to integer:", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
+			return
+		}
 		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
 	if err := query.UpdateUser(ctx, db.UpdateUserParams{
-		Name:  name,
-		Email: email,
-		Age:   int32(age),
+		ID:    existingUser.ID,
+		Name:  existingUser.Name,
+		Email: existingUser.Email,
+		Age:   existingUser.Age,
 	}); err != nil {
 		log.Println("Error updating user:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -208,7 +205,7 @@ func GinDeleteUser(c *gin.Context) {
 	userIdStr := c.Param("id")
 
 	// Validate user ID
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
