@@ -46,7 +46,7 @@ func MuxCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert age to integer
-	age, err := strconv.ParseInt(ageStr, 10, 32)
+	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -128,7 +128,7 @@ func MuxGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -179,7 +179,7 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -198,31 +198,29 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	ageStr := r.FormValue("age")
 
-	age, err := strconv.ParseInt(ageStr, 10, 32)
-	if err != nil {
-		log.Println("Error converting age to integer:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
 	// Update user fields if provided
 	if name != "" {
 		existingUser.Name = name
 	}
-
 	if email != "" {
 		existingUser.Email = email
 	}
-
 	if ageStr != "" {
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			log.Println("Error converting age to integer:", err)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
 		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
 	if err := query.UpdateUser(ctx, db.UpdateUserParams{
-		Name:  name,
-		Email: email,
-		Age:   int32(age),
+		ID:    existingUser.ID,
+		Name:  existingUser.Name,
+		Email: existingUser.Email,
+		Age:   existingUser.Age,
 	}); err != nil {
 		log.Println("Error updating user:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -255,7 +253,7 @@ func MuxDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
