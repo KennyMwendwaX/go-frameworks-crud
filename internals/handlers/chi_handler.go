@@ -46,7 +46,7 @@ func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert age to integer
-	age, err := strconv.ParseInt(ageStr, 10, 32)
+	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -122,7 +122,7 @@ func ChiGetUser(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -167,7 +167,7 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -186,31 +186,29 @@ func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	ageStr := r.FormValue("age")
 
-	age, err := strconv.ParseInt(ageStr, 10, 32)
-	if err != nil {
-		log.Println("Error converting age to integer:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
 	// Update user fields if provided
 	if name != "" {
 		existingUser.Name = name
 	}
-
 	if email != "" {
 		existingUser.Email = email
 	}
-
 	if ageStr != "" {
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			log.Println("Error converting age to integer:", err)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
 		existingUser.Age = int32(age)
 	}
 
 	// Save the updated user to the database
 	if err := query.UpdateUser(ctx, db.UpdateUserParams{
-		Name:  name,
-		Email: email,
-		Age:   int32(age),
+		ID:    existingUser.ID,
+		Name:  existingUser.Name,
+		Email: existingUser.Email,
+		Age:   existingUser.Age,
 	}); err != nil {
 		log.Println("Error updating user:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -237,7 +235,7 @@ func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from request URL parameters
 	userIdStr := chi.URLParam(r, "id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)

@@ -45,7 +45,7 @@ func StandardCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert age to integer
-	age, err := strconv.ParseInt(ageStr, 10, 32)
+	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -120,7 +120,7 @@ func StandardGetUser(w http.ResponseWriter, r *http.Request) {
 	// Extract the userId from the url parameters
 	userIdStr := r.PathValue("id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -165,7 +165,7 @@ func StandardUpdateUser(w http.ResponseWriter, r *http.Request) {
 	// Extract the userId from the url parameters
 	userIdStr := r.PathValue("id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -233,7 +233,7 @@ func StandardDeleteUser(w http.ResponseWriter, r *http.Request) {
 	// Extract the userId from the url parameters
 	userIdStr := r.PathValue("id")
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 32)
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
