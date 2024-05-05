@@ -9,7 +9,7 @@ The project follows the standard Go project layout and naming conventions, provi
 - `cmd/`: Contains the main application entry point (`main.go`). This is where the main application logic resides.
 - `internals/`: Contains internal packages and modules that are specific to this application. These packages are not intended to be imported by external packages.
   - `config/`: Handles application configuration, such as database configuration (`db.go`).
-  - `db/`: Handles database connectivity (`postgres.go`).
+  - `db/`: Contains database related packages.
     - `connection.go`: Handles database connection to a postgres database using [pgx](https://github.com/jackc/pgx).
     - `migrations/`: Contains sql files for migrations to the database using golang-migrate.
     - `db.go`, `models.go` & `query.sql.go`: Contains [sqlc](https://docs.sqlc.dev/en/latest/index.html) generated type safe GO code generated from `schema.sql` and `query.sql` files.
