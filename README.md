@@ -1,4 +1,4 @@
-# Go RESTful CRUD Application
+# GO Frameworks RESTful CRUD Application
 
 This is a simple CRUD (Create, Read, Update, Delete) application written in Go, showcasing different routers and frameworks. The application allows you to perform operation on user data using various web frameworks and routers, including Chi, Echo, Gin, HttpRouter, Mux, and the standard net/http package.
 
