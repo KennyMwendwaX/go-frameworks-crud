@@ -1,8 +1,8 @@
 package routers
 
 import (
+	"github.com/KennyMwendwaX/go-frameworks-crud/internals/handlers"
 	"github.com/julienschmidt/httprouter"
-	"github.com/kenny-mwendwa/go-crud-frameworks/internals/handlers"
 )
 
 func HttpRouter() *httprouter.Router {

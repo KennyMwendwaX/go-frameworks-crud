@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kenny-mwendwa/go-crud-frameworks/internals/db"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internals/db"
 )
 
 // CREATE USER

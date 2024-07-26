@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/kenny-mwendwa/go-crud-frameworks/internals/handlers"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internals/handlers"
 	"github.com/labstack/echo/v4"
 )
 

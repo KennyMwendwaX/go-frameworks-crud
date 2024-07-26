@@ -1,8 +1,8 @@
 package routers
 
 import (
+	"github.com/KennyMwendwaX/go-frameworks-crud/internals/handlers"
 	"github.com/go-chi/chi/v5"
-	"github.com/kenny-mwendwa/go-crud-frameworks/internals/handlers"
 )
 
 func ChiRouter() *chi.Mux {

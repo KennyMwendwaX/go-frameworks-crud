@@ -1,8 +1,8 @@
 package routers
 
 import (
+	"github.com/KennyMwendwaX/go-frameworks-crud/internals/handlers"
 	"github.com/gin-gonic/gin"
-	"github.com/kenny-mwendwa/go-crud-frameworks/internals/handlers"
 )
 
 func GinRouter() *gin.Engine {

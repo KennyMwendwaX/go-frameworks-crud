@@ -3,7 +3,7 @@ package routers
 import (
 	"net/http"
 
-	"github.com/kenny-mwendwa/go-crud-frameworks/internals/handlers"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internals/handlers"
 )
 
 func StandardRouter() *http.ServeMux {

@@ -1,4 +1,4 @@
-module github.com/kenny-mwendwa/go-crud-frameworks
+module github.com/KennyMwendwaX/go-frameworks-crud
 
 go 1.22.0
 
