@@ -6,13 +6,13 @@ import (
 )
 
 func EchoRouter() *echo.Echo {
-	e := echo.New()
+	r := echo.New()
 
-	e.GET("/users", handlers.EchoGetUsers)
-	e.POST("/users", handlers.EchoCreateUser)
-	e.GET("/users/:id", handlers.EchoGetUser)
-	e.PUT("/users/:id", handlers.EchoUpdateUser)
-	e.DELETE("/users/:id", handlers.EchoDeleteUser)
+	r.GET("/users", handlers.EchoGetUsers)
+	r.POST("/users", handlers.EchoCreateUser)
+	r.GET("/users/:id", handlers.EchoGetUser)
+	r.PUT("/users/:id", handlers.EchoUpdateUser)
+	r.DELETE("/users/:id", handlers.EchoDeleteUser)
 
-	return e
+	return r
 }
