@@ -22,3 +22,12 @@ func FromDatabaseUser(databaseUser database.User) User {
 		CreatedAt: databaseUser.CreatedAt,
 	}
 }
+
+func FromDatabaseUsers(databaseUser []database.User) []User {
+	users := []User{}
+
+	for _, databaseUser := range databaseUser {
+		users = append(users, FromDatabaseUser(databaseUser))
+	}
+	return users
+}
