@@ -7,9 +7,12 @@ import (
 
 	"github.com/KennyMwendwaX/go-frameworks-crud/internal/routers"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
+
 	standardRouter := routers.StandardRouter()
 	httpRouter := routers.HttpRouter()
 	muxRouter := routers.MuxRouter()
