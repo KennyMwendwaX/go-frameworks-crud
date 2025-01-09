@@ -7,65 +7,55 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/config"
 	"github.com/KennyMwendwaX/go-frameworks-crud/internal/db"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/models"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/utils"
 	"github.com/go-chi/chi/v5"
 )
 
 // CREATE USER
-func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+func ChiCreateUser(cfg *config.APIConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	conn, err := db.ConnectDB()
-	if err != nil {
-		log.Fatal(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+		// Parse form data
+		err := r.ParseForm()
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Bad Request")
+			return
+		}
+
+		// Get form values
+		name := r.FormValue("name")
+		email := r.FormValue("email")
+		ageStr := r.FormValue("age")
+
+		// Guard clauses to check if values are empty
+		if name == "" || email == "" || ageStr == "" {
+			utils.RespondWithError(w, http.StatusBadRequest, "Bad Request: Empty values")
+			return
+		}
+
+		// Convert age to integer
+		age, err := strconv.ParseUint(ageStr, 10, 32)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Bad Request")
+			return
+		}
+
+		// Create user
+		user, err := cfg.DB.CreateUser(r.Context(), db.CreateUserParams{
+			Name:  name,
+			Email: email,
+			Age:   int32(age),
+		})
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error creating user")
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusCreated, models.FromDatabaseUser(user))
 	}
-	defer conn.Close(ctx)
-
-	query := db.New(conn)
-
-	// Parse form data
-	err = r.ParseForm()
-	if err != nil {
-		log.Println("Error parsing form data:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
-	// Get form values
-	name := r.FormValue("name")
-	email := r.FormValue("email")
-	ageStr := r.FormValue("age")
-
-	// Guard clauses to check if values are empty
-	if name == "" || email == "" || ageStr == "" {
-		log.Println("Empty values detected")
-		http.Error(w, "Bad Request: Empty values", http.StatusBadRequest)
-		return
-	}
-
-	// Convert age to integer
-	age, err := strconv.ParseUint(ageStr, 10, 32)
-	if err != nil {
-		log.Println("Error converting age to integer:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
-	// Create user
-	if err := query.CreateUser(ctx, db.CreateUserParams{
-		Name:  name,
-		Email: email,
-		Age:   int32(age),
-	}); err != nil {
-		log.Println("Error creating user:", err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	// Return a success response
-	w.WriteHeader(http.StatusCreated)
 }
 
 // GET ALL USERS

@@ -6,12 +6,12 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM users
 ORDER BY created_at DESC;
 
--- name: CreateUser :exec
+-- name: CreateUser :one
 INSERT INTO users (
     name, email, age
 ) VALUES (
     $1, $2, $3
-);
+) RETURNING *;
 
 -- name: UpdateUser :exec
 UPDATE users
