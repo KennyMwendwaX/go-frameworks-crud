@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/KennyMwendwaX/go-frameworks-crud/internals/routers"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/routers"
 	"github.com/gin-gonic/gin"
 )
 

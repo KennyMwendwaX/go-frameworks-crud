@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/KennyMwendwaX/go-frameworks-crud/internals/handlers"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/handlers"
 	"github.com/go-chi/chi/v5"
 )
 

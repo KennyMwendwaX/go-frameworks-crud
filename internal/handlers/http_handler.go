@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KennyMwendwaX/go-frameworks-crud/internals/db"
-	"github.com/gorilla/mux"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/db"
+	"github.com/julienschmidt/httprouter"
 )
 
 // CREATE USER
-func MuxCreateUser(w http.ResponseWriter, r *http.Request) {
+func HttpCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
@@ -69,7 +69,7 @@ func MuxCreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET ALL USERS
-func MuxGetUsers(w http.ResponseWriter, r *http.Request) {
+func HttpGetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
@@ -82,6 +82,7 @@ func MuxGetUsers(w http.ResponseWriter, r *http.Request) {
 
 	query := db.New(conn)
 
+	// Query the database for all users
 	users, err := query.GetUsers(ctx)
 	if err != nil {
 		log.Println("Error fetching users from the database:", err.Error())
@@ -106,7 +107,7 @@ func MuxGetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET ONE USER
-func MuxGetUser(w http.ResponseWriter, r *http.Request) {
+func HttpGetUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
@@ -120,13 +121,7 @@ func MuxGetUser(w http.ResponseWriter, r *http.Request) {
 	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
-	vars := mux.Vars(r)
-	userIdStr, ok := vars["id"]
-	if !ok {
-		log.Println("User ID not provided in the URL")
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
+	userIdStr := ps.ByName("id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -157,7 +152,7 @@ func MuxGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UPDATE USER
-func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
+func HttpUpdateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
@@ -171,13 +166,7 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
-	vars := mux.Vars(r)
-	userIdStr, ok := vars["id"]
-	if !ok {
-		log.Println("User ID not provided in the url")
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
+	userIdStr := ps.ByName("id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
@@ -231,7 +220,7 @@ func MuxUpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DELETE USER
-func MuxDeleteUser(w http.ResponseWriter, r *http.Request) {
+func HttpDeleteUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
@@ -245,13 +234,7 @@ func MuxDeleteUser(w http.ResponseWriter, r *http.Request) {
 	query := db.New(conn)
 
 	// Extract user ID from request URL parameters
-	vars := mux.Vars(r)
-	userIdStr, ok := vars["id"]
-	if !ok {
-		log.Println("User ID not provided in the url")
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
+	userIdStr := ps.ByName("id")
 
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {

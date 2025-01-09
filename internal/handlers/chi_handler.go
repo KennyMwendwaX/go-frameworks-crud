@@ -2,36 +2,46 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/KennyMwendwaX/go-frameworks-crud/internals/db"
-	"github.com/gin-gonic/gin"
+	"github.com/KennyMwendwaX/go-frameworks-crud/internal/db"
+	"github.com/go-chi/chi/v5"
 )
 
 // CREATE USER
-func GinCreateUser(c *gin.Context) {
+func ChiCreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer conn.Close(ctx)
 
 	query := db.New(conn)
 
-	// Retrieve data from the form
-	name := c.PostForm("name")
-	email := c.PostForm("email")
-	ageStr := c.PostForm("age")
+	// Parse form data
+	err = r.ParseForm()
+	if err != nil {
+		log.Println("Error parsing form data:", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
-	// Validate input
+	// Get form values
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	ageStr := r.FormValue("age")
+
+	// Guard clauses to check if values are empty
 	if name == "" || email == "" || ageStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Empty values"})
+		log.Println("Empty values detected")
+		http.Error(w, "Bad Request: Empty values", http.StatusBadRequest)
 		return
 	}
 
@@ -39,7 +49,7 @@ func GinCreateUser(c *gin.Context) {
 	age, err := strconv.ParseUint(ageStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting age to integer:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -50,22 +60,22 @@ func GinCreateUser(c *gin.Context) {
 		Age:   int32(age),
 	}); err != nil {
 		log.Println("Error creating user:", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	// Return a success response
-	c.JSON(http.StatusCreated, gin.H{"message": "User created"})
+	w.WriteHeader(http.StatusCreated)
 }
 
 // GET ALL USERS
-func GinGetUsers(c *gin.Context) {
+func ChiGetUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer conn.Close(ctx)
@@ -75,86 +85,106 @@ func GinGetUsers(c *gin.Context) {
 	users, err := query.GetUsers(ctx)
 	if err != nil {
 		log.Println("Error fetching users from the database:", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, users)
+	usersJSON, err := json.Marshal(users)
+
+	if err != nil {
+		log.Println("Error marshaling users to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Set Content-Type header
+	w.Header().Set("Content-Type", "application/json")
+
+	// Write JSON response to the client
+	w.WriteHeader(http.StatusOK)
+	w.Write(usersJSON)
 }
 
 // GET ONE USER
-func GinGetUser(c *gin.Context) {
+func ChiGetUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer conn.Close(ctx)
 
 	query := db.New(conn)
 
-	// Retrieve user ID from the URL parameters
-	userIdStr := c.Param("id")
+	// Extract user ID from request URL parameters
+	userIdStr := chi.URLParam(r, "id")
 
-	// Validate user ID
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	// Query the database for the user with the specified ID
+	// Query the DB for the user with the specified ID
 	user, err := query.GetUser(ctx, int32(userId))
 	if err != nil {
 		log.Println("Error fetching user from the database:", err.Error())
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	// Return JSON response to the client
-	c.JSON(http.StatusOK, user)
+	userJSON, err := json.Marshal(user)
+
+	if err != nil {
+		log.Println("Error marshaling user to JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(userJSON)
 }
 
 // UPDATE USER
-func GinUpdateUser(c *gin.Context) {
+func ChiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer conn.Close(ctx)
 
 	query := db.New(conn)
 
-	// Retrieve user ID from the URL parameters
-	userIdStr := c.Param("id")
+	// Extract user ID from request URL parameters
+	userIdStr := chi.URLParam(r, "id")
 
-	// Validate user ID
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	existingUser, err := query.GetUser(ctx, int32(userId))
 	if err != nil {
 		log.Println("Error fetching user from the database:", err.Error())
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	// Retrieve data from the form
-	name := c.PostForm("name")
-	email := c.PostForm("email")
-	ageStr := c.PostForm("age")
+	// Get form values
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	ageStr := r.FormValue("age")
 
 	// Update user fields if provided
 	if name != "" {
@@ -167,7 +197,7 @@ func GinUpdateUser(c *gin.Context) {
 		age, err := strconv.ParseUint(ageStr, 10, 32)
 		if err != nil {
 			log.Println("Error converting age to integer:", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid age format"})
+			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 		existingUser.Age = int32(age)
@@ -181,49 +211,49 @@ func GinUpdateUser(c *gin.Context) {
 		Age:   existingUser.Age,
 	}); err != nil {
 		log.Println("Error updating user:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
+
+	w.WriteHeader(http.StatusOK)
 }
 
 // DELETE USER
-func GinDeleteUser(c *gin.Context) {
+func ChiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	conn, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer conn.Close(ctx)
 
 	query := db.New(conn)
 
-	// Retrieve user ID from the URL parameters
-	userIdStr := c.Param("id")
+	// Extract user ID from request URL parameters
+	userIdStr := chi.URLParam(r, "id")
 
-	// Validate user ID
 	userId, err := strconv.ParseUint(userIdStr, 10, 32)
 	if err != nil {
 		log.Println("Error converting userId to integer:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request: Invalid user ID format"})
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	_, err = query.GetUser(ctx, int32(userId))
 	if err != nil {
 		log.Println("Error fetching user from the database:", err.Error())
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
 	if err := query.DeleteUser(ctx, int32(userId)); err != nil {
 		log.Println("Error deleting user from the database:", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusNoContent, gin.H{"message": "User deleted"})
+	w.WriteHeader(http.StatusNoContent)
 }
