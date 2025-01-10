@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -9,22 +8,6 @@ import (
 	"github.com/KennyMwendwaX/go-frameworks-crud/internal/database"
 	"github.com/labstack/echo/v4"
 )
-
-func respondWithJSON(c echo.Context, code int, payload interface{}) error {
-	return c.JSON(code, payload)
-}
-
-func respondWithError(c echo.Context, code int, message string) error {
-	if code >= 500 {
-		log.Println("Responding with 5XX level error:", message)
-	}
-
-	type errorResponse struct {
-		Error string `json:"error"`
-	}
-
-	return respondWithJSON(c, code, errorResponse{Error: message})
-}
 
 // CREATE USER
 func EchoCreateUser(cfg *config.APIConfig) echo.HandlerFunc {
@@ -35,12 +18,12 @@ func EchoCreateUser(cfg *config.APIConfig) echo.HandlerFunc {
 
 		// Guard clauses to check if values are empty
 		if name == "" || email == "" || ageStr == "" {
-			return respondWithError(c.Response(), http.StatusBadRequest, "Bad Request: Empty values")
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request: Empty values"})
 		}
 
 		age, err := strconv.ParseUint(ageStr, 10, 32)
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusBadRequest, "Bad Request: Invalid age")
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request: Invalid age"})
 		}
 
 		user, err := cfg.DB.CreateUser(c.Request().Context(), database.CreateUserParams{
@@ -49,10 +32,10 @@ func EchoCreateUser(cfg *config.APIConfig) echo.HandlerFunc {
 			Age:   int32(age),
 		})
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusInternalServerError, "Error creating user")
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating user"})
 		}
 
-		return respondWithJSON(c.Response(), http.StatusCreated, user)
+		return c.JSON(http.StatusCreated, user)
 	}
 }
 
@@ -61,10 +44,10 @@ func EchoGetUsers(cfg *config.APIConfig) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		users, err := cfg.DB.GetUsers(c.Request().Context())
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusInternalServerError, "Internal Server Error")
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal Server Error"})
 		}
 
-		return respondWithJSON(c.Response(), http.StatusOK, users)
+		return c.JSON(http.StatusOK, users)
 	}
 }
 
@@ -75,15 +58,15 @@ func EchoGetUser(cfg *config.APIConfig) echo.HandlerFunc {
 
 		userId, err := strconv.ParseUint(userIdStr, 10, 32)
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusBadRequest, "Bad Request: Invalid user ID")
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request: Invalid user ID"})
 		}
 
 		user, err := cfg.DB.GetUser(c.Request().Context(), int32(userId))
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusNotFound, "User not found")
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 		}
 
-		return respondWithJSON(c.Response(), http.StatusOK, user)
+		return c.JSON(http.StatusOK, user)
 	}
 }
 
@@ -94,12 +77,12 @@ func EchoUpdateUser(cfg *config.APIConfig) echo.HandlerFunc {
 
 		userId, err := strconv.ParseUint(userIdStr, 10, 32)
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusBadRequest, "Bad Request: Invalid user ID")
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request: Invalid user ID"})
 		}
 
 		existingUser, err := cfg.DB.GetUser(c.Request().Context(), int32(userId))
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusNotFound, "User not found")
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 		}
 
 		name := c.FormValue("name")
@@ -116,7 +99,7 @@ func EchoUpdateUser(cfg *config.APIConfig) echo.HandlerFunc {
 		if ageStr != "" {
 			age, err := strconv.ParseUint(ageStr, 10, 32)
 			if err != nil {
-				return respondWithError(c.Response(), http.StatusBadRequest, "Bad Request: Invalid age")
+				return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request: Invalid age"})
 			}
 			existingUser.Age = int32(age)
 		}
@@ -128,10 +111,10 @@ func EchoUpdateUser(cfg *config.APIConfig) echo.HandlerFunc {
 			Age:   existingUser.Age,
 		})
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusInternalServerError, "Internal Server Error")
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal Server Error"})
 		}
 
-		return respondWithJSON(c.Response(), http.StatusOK, updatedUser)
+		return c.JSON(http.StatusOK, updatedUser)
 	}
 }
 
@@ -142,18 +125,18 @@ func EchoDeleteUser(cfg *config.APIConfig) echo.HandlerFunc {
 
 		userId, err := strconv.ParseUint(userIdStr, 10, 32)
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusBadRequest, "Bad Request: Invalid user ID")
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request: Invalid user ID"})
 		}
 
 		_, err = cfg.DB.GetUser(c.Request().Context(), int32(userId))
 		if err != nil {
-			return respondWithError(c.Response(), http.StatusNotFound, "User not found")
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 		}
 
 		if err := cfg.DB.DeleteUser(c.Request().Context(), int32(userId)); err != nil {
-			return respondWithError(c.Response(), http.StatusInternalServerError, "Internal Server Error")
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal Server Error"})
 		}
 
-		return respondWithJSON(c.Response(), http.StatusNoContent, "Successfully deleted the user")
+		return c.JSON(http.StatusNoContent, map[string]string{"message": "Successfully deleted the user"})
 	}
 }
