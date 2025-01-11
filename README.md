@@ -8,15 +8,14 @@ The project follows the standard Go project layout and naming conventions, provi
 
 - `cmd/`: Contains the main application entry point (`main.go`). This is where the main application logic resides.
 - `internals/`: Contains internal packages and modules that are specific to this application. These packages are not intended to be imported by external packages.
-  - `config/`: Handles application configuration, such as database configuration (`db.go`).
-  - `db/`: Contains database related packages.
-    - `connection.go`: Handles database connection to a postgres database using [pgx](https://github.com/jackc/pgx).
-    - `migrations/`: Contains sql files for migrations to the database using golang-migrate.
-    - `db.go`, `models.go` & `query.sql.go`: Contains [sqlc](https://docs.sqlc.dev/en/latest/index.html) generated type safe GO code generated from `schema.sql` and `query.sql` files.
+  - `config/`: Handles application configuration, such as database configuration for the apis.
+  - `database/`: Contains database related packages.
+    - `connection.go`: Creates a pooled database connection to a postgres database using [pgx](https://github.com/jackc/pgx).
+    - `db.go`, `models.go` & `users.sql.go`: Contains [sqlc](https://docs.sqlc.dev/en/latest/index.html) generated type safe GO code generated from `schema.sql` and `query.sql` files.
   - `migrate/`: Contains script `main.go` for database migration using golang-migrate.
   - `routers/`: Contains router implementations (`chi_router.go`, `echo_router.go`, etc.).
   - `handlers/`: Contains handler functions for each CRUD operation (`chi_handler.go`, `echo_handler.go`, etc.).
-  - `sql/`: Contains `schema.sql` and `query.sql` files for generating type safe GO code from the compiled sql using sqlc.
+  - `sql/`: Contains `schema` and `queries` folders with sql files for generating type safe GO code from the compiled sql using sqlc.
 - `sqlc.yaml`: This is the configuration file used for working with [sqlc](https://docs.sqlc.dev/en/latest/index.html).
 
 ## Getting Started
@@ -45,18 +44,24 @@ DATABASE_URL="postgresql://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME"
 
 ### Running Migrations
 
-To initialize the database schema, run the migration script:
+To initialize the database schema, navigate to the schema directory using:
 
 ```bash
-go run internals/migrate/main.go
+cd internal/sql/schema
+```
+
+and run the following command:
+
+```bash
+goose postgres postgresql://username:password@localhost:5432/db_name up
 ```
 
 ### Running the application
 
-To initialize the database schema, run the migration script:
+To build and run the application use the following command
 
 ```bash
-go run cmd/main.go
+make run
 ```
 
 ## Routers and Endpoints
