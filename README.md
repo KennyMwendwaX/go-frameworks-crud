@@ -26,6 +26,8 @@ Ensure you have the following installed on your machine:
 
 - [Go](https://golang.org/dl/)
 - PostgreSQL Database
+- [sqlc] (https://docs.sqlc.dev/en/latest/)
+- [goose] (https://pressly.github.io/goose/)
 
 ### Requirements
 
