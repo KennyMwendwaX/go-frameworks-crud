@@ -26,8 +26,8 @@ Ensure you have the following installed on your machine:
 
 - [Go](https://golang.org/dl/): The application is developed in Go. Install the latest version from the official website.
 - PostgreSQL Database: The application uses PostgreSQL as the database. Ensure it is installed and running.
-- [sqlc] (https://docs.sqlc.dev/en/latest/): sqlc generates fully type-safe idiomatic Go code from SQL.
-- [goose] (https://pressly.github.io/goose/): is a database migration tool. Manage your database schema by creating incremental SQL changes and/or Go functions.
+- [sqlc](https://docs.sqlc.dev/en/latest/): sqlc generates fully type-safe idiomatic Go code from SQL.
+- [goose](https://pressly.github.io/goose/): is a database migration tool. Manage your database schema by creating incremental SQL changes and/or Go functions.
 
 ### Environment Configuration
 
