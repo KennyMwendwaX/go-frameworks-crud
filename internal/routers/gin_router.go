@@ -7,6 +7,7 @@ import (
 )
 
 func GinRouter() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	cfg := config.ApiCfg()
 
